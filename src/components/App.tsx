@@ -117,6 +117,9 @@ export const App = () => {
 		try {
 		  const docRef = await addDoc(collection(db, "sushi"), dateAddedValue);
 		  console.log("Document written with ID: ", docRef.id);
+		  // 寿司のデータをリセットする。
+		  setValues(sushiObj)
+		  alert('送信に成功しました。')
 		} catch (e) {
 		  console.error("Error adding document: ", e);
 		}
