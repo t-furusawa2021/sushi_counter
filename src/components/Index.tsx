@@ -16,17 +16,10 @@ export const Index = () => {
 	const [sushis, setSushis] = useState<SushiDB[]>([])
 	useEffect(() => {
 		const getSushis = async () => {
-			const docsRef = await getDocs(collection(db, 'sushi'))
+			const docsRef = await getDocs(query(collection(db, 'sushi'), orderBy('date', 'desc')))
 			const sushiArray:any[] = []
 			docsRef.forEach((doc) => {
 				let data = doc.data()
-				let sum = 0
-				Object.keys(data).forEach(function (key) {
-					if (key !== 'date') {
-						sum = data[key] + sum
-					}
-				})
-				data.sum = sum
 				sushiArray.push(data)
 			})
 			setSushis(sushiArray)

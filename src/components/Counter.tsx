@@ -1,6 +1,6 @@
 import { Grid, Button, ButtonGroup, Radio, RadioGroup } from '@mui/material';
 import { Box } from '@mui/system';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { db } from '../firebase/firebase';
 import { collection, addDoc } from "firebase/firestore";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -23,6 +23,8 @@ const SUSHI_JA: SushiJa = {
 }
 
 export const Counter = () => {
+	const SUSHI_CACHE = 'sushi_cache_key'
+	const SUM_CACHE = 'sum_cache_key'
     // ステイト用のオブジェクト
     const sushiObj: SushiObj = {
         red: 0, // 赤身
@@ -52,16 +54,25 @@ export const Counter = () => {
         return <ButtonGroup size="large" aria-label="large button group primary">
 			<Button key='sub' color='error' variant='contained' onClick={() => {
 				if (values[neta] > 0) {
-					setValues({...values, [neta]: values[neta] - 1})
-					setSumVal(sumVal - 1)
+					const newValues = {...values, [neta]: values[neta] - 1}
+					const newSum = sumVal - 1
+					setValues(newValues)
+					setSumVal(newSum)
+					localStorage.setItem(SUSHI_CACHE, JSON.stringify(values))
+					localStorage.setItem(SUM_CACHE, String(newSum))
 				}
 			}}>-</Button>
 			<Button key='sushi' size='large'
 			style={{width : '140px'}}
 			>{values[neta]}貫({SUSHI_JA[neta]})</Button>
 			<Button key='add' color='primary' variant='contained' onClick={() => {
-				setValues({...values, [neta]: values[neta] + 1})
-				setSumVal(sumVal + 1)
+				// useStateはスコープ内だと更新が反映できないので変数で保持する。
+				const newValues = {...values, [neta]: values[neta] + 1}
+				const newSum = sumVal + 1
+				setValues(newValues)
+				setSumVal(newSum)
+				localStorage.setItem(SUSHI_CACHE, JSON.stringify(newValues))
+				localStorage.setItem(SUM_CACHE, String(newSum))
 			}}>+</Button>
         </ButtonGroup>
     }
@@ -76,11 +87,29 @@ export const Counter = () => {
 		  console.log("Document written with ID: ", docRef.id);
 		  // 寿司のデータをリセットする。
 		  setValues(sushiObj)
+		  localStorage.setItem(SUSHI_CACHE, JSON.stringify(sushiObj))
+		  setSumVal(0)
 		  alert('送信に成功しました。')
 		} catch (e) {
 		  console.error("Error adding document: ", e);
 		}
 	}
+
+	useEffect(() => {
+		let cache    = localStorage.getItem(SUSHI_CACHE) ? localStorage.getItem(SUSHI_CACHE) : JSON.stringify(sushiObj)
+		let sumCache = localStorage.getItem(SUM_CACHE) ? localStorage.getItem(SUM_CACHE) : 0
+		if (cache === null) {
+			cache = JSON.stringify(sushiObj)
+		}
+		if (sumCache === null) {
+			sumCache = 0
+		}
+		const values: SushiObj = JSON.parse(cache)
+		const sum = sumCache
+		setValues(values)
+		setSumVal(Number(sum))
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
     return (
         <div>
@@ -103,12 +132,7 @@ export const Counter = () => {
 				{buttons('blueBacked')}
 				{buttons('boiled')}
 				{buttons('roe')}
-				<Box
-					sx={{
-						p: 1,
-					}}
-				>現在{sumVal}貫
-				</Box>
+				<Box sx={{p: 1}}>現在{sumVal}貫</Box>
             </Box>
 			<Grid container justifyContent='center' spacing='10'>
 				<RadioGroup row aria-label="person" name="person" value={personVal} onChange={changePersonVal}>
@@ -119,7 +143,11 @@ export const Counter = () => {
 			<Grid container justifyContent='center' spacing='10'>
 				<Grid item xs={4} textAlign='right'>
 					<Button key='reset' color='info' variant='contained'
-						onClick={() => {setValues(sushiObj)}}
+						onClick={() => {
+							setValues(sushiObj)
+							setSumVal(0)
+							localStorage.setItem(SUSHI_CACHE, JSON.stringify(sushiObj))
+						}}
 					>リセット</Button>
 				</Grid>
 				<Grid item xs={4} textAlign='left'>
