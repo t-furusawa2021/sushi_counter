@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useEffect, useState } from "react";
-import { SushiDB, SushiJa } from '../types/SushiType'
+import { SushiDB } from '../types/SushiType'
+import { SUSHI_JA, PERSON_NAME } from "../const/const";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -26,23 +27,6 @@ export const Index = () => {
 		}
 		getSushis()
 	}, [])
-	/**
-	 * 寿司の英語対応表
-	 */
-	const SUSHI_JA: SushiJa = {
-		red: '赤身',
-		white: '白身',
-		shellfish: '甲殻類',
-		shell: '貝',
-		urchin: 'ウニ',
-		blueBacked: '光もの',
-		boiled: '煮物',
-		roe: '魚卵',
-	}
-	const personObj:any = {
-		1: 'ばぼちぇ',
-		2: 'おまみ',
-	}
 	return (
 		<>
 			<h1>寿司ログ</h1>
@@ -71,7 +55,7 @@ export const Index = () => {
 							key={sushi.date}
 							sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
 							>
-							<TableCell component="th" scope="row">{personObj[sushi.person]}</TableCell>
+							<TableCell component="th" scope="row">{PERSON_NAME[sushi.person]}</TableCell>
 							<TableCell align="right">{sushi.red}</TableCell>
 							<TableCell align="right">{sushi.white}</TableCell>
 							<TableCell align="right">{sushi.blueBacked}</TableCell>

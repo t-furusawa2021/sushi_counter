@@ -5,27 +5,12 @@ import { db } from '../firebase/firebase';
 import { collection, addDoc } from "firebase/firestore";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { Link } from 'react-router-dom';
-import { SushiObj, SushiJa, Person, SushiDB } from '../types/SushiType'
+import { SushiObj, SushiDB } from '../types/SushiType'
+import { SUSHI_JA, PERSON, PERSON_NAME, SUSHI_CACHE, SUM_CACHE } from '../const/const'
 import moment from 'moment'
 
-/**
- * 寿司の英語対応表
- */
-const SUSHI_JA: SushiJa = {
-    red: '赤身',
-    white: '白身',
-    shellfish: '甲殻類',
-    shell: '貝',
-    urchin: 'ウニ',
-    blueBacked: '光もの',
-    boiled: '煮物',
-    roe: '魚卵',
-}
-
 export const Counter = () => {
-	const SUSHI_CACHE = 'sushi_cache_key'
-	const SUM_CACHE = 'sum_cache_key'
-    // ステイト用のオブジェクト
+    // ステイト用のオブジェクトを初期データ
     const sushiObj: SushiObj = {
         red: 0, // 赤身
         white: 0, // 白身
@@ -36,10 +21,6 @@ export const Counter = () => {
         boiled: 0, // 煮物
         roe: 0, // 魚卵
     }
-	const personObj: Person = {
-		takeshi: "2",
-		momose: "1"
-	}
 	// 寿司
     const [values, setValues] = useState(sushiObj)
 	// 人物区分値
@@ -58,8 +39,7 @@ export const Counter = () => {
 					const newSum = sumVal - 1
 					setValues(newValues)
 					setSumVal(newSum)
-					localStorage.setItem(SUSHI_CACHE, JSON.stringify(values))
-					localStorage.setItem(SUM_CACHE, String(newSum))
+					setCache(newValues, newSum)
 				}
 			}}>-</Button>
 			<Button key='sushi' size='large'
@@ -71,11 +51,20 @@ export const Counter = () => {
 				const newSum = sumVal + 1
 				setValues(newValues)
 				setSumVal(newSum)
-				localStorage.setItem(SUSHI_CACHE, JSON.stringify(newValues))
-				localStorage.setItem(SUM_CACHE, String(newSum))
+				setCache(newValues, newSum)
 			}}>+</Button>
         </ButtonGroup>
     }
+
+	/**
+	 * ローカルストレージを削除する。
+	 * @param sushiobj
+	 * @param sum
+	 */
+	const setCache = (sushiobj: SushiObj, sum: number) => {
+		localStorage.setItem(SUSHI_CACHE, JSON.stringify(sushiobj))
+		localStorage.setItem(SUM_CACHE, String(sum))
+	}
 
 	/**
 	 * firestoreにデータを送る。
@@ -87,8 +76,8 @@ export const Counter = () => {
 		  console.log("Document written with ID: ", docRef.id);
 		  // 寿司のデータをリセットする。
 		  setValues(sushiObj)
-		  localStorage.setItem(SUSHI_CACHE, JSON.stringify(sushiObj))
 		  setSumVal(0)
+		  setCache(sushiObj, 0)
 		  alert('送信に成功しました。')
 		} catch (e) {
 		  console.error("Error adding document: ", e);
@@ -136,8 +125,8 @@ export const Counter = () => {
             </Box>
 			<Grid container justifyContent='center' spacing='10'>
 				<RadioGroup row aria-label="person" name="person" value={personVal} onChange={changePersonVal}>
-					<FormControlLabel value={personObj.momose} control={<Radio color="primary" />} label="ももちぇ" />
-					<FormControlLabel value={personObj.takeshi} control={<Radio color="primary" />} label="おたけ" />
+					<FormControlLabel value={PERSON.momose} control={<Radio color="primary" />} label={PERSON_NAME[PERSON.momose]} />
+					<FormControlLabel value={PERSON.takeshi} control={<Radio color="primary" />} label={PERSON_NAME[PERSON.takeshi]} />
 				</RadioGroup>
 			</Grid>
 			<Grid container justifyContent='center' spacing='10'>
@@ -146,7 +135,7 @@ export const Counter = () => {
 						onClick={() => {
 							setValues(sushiObj)
 							setSumVal(0)
-							localStorage.setItem(SUSHI_CACHE, JSON.stringify(sushiObj))
+							setCache(sushiObj, 0)
 						}}
 					>リセット</Button>
 				</Grid>
