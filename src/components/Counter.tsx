@@ -102,7 +102,7 @@ export const Counter = () => {
 
     return (
         <div>
-			<Link to="/index">寿司ログ</Link>
+			<Link to="/index">寿司ログ</Link><br />
             <Box
                 sx={{
                     display: 'flex',
