@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useEffect, useState } from "react";
@@ -32,6 +32,7 @@ export const Index = () => {
 			<h1>寿司ログ</h1>
 			<Link to="/">寿司カウンター</Link>
 			<br />
+			<Outlet />
 			<TableContainer component={Paper}>
 				<Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
 					<TableHead>
@@ -65,7 +66,11 @@ export const Index = () => {
 							<TableCell align="right">{sushi.shellfish}</TableCell>
 							<TableCell align="right">{sushi.urchin}</TableCell>
 							<TableCell align="right">{sushi.sum}</TableCell>
-							<TableCell align="right">{moment(sushi.date).format('YYYY/MM/DD HH:mm')}</TableCell>
+							<TableCell align="right">
+								<Link to={'/index/chart/' + sushi.date}>
+									{moment(sushi.date).format('YYYY/MM/DD HH:mm')}
+								</Link>
+							</TableCell>
 						</TableRow>
 					))}
 					</TableBody>
