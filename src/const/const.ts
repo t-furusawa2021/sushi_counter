@@ -30,8 +30,8 @@ export const PERSON: Person = {
  * 人物名
  */
 export const PERSON_NAME: any = {
-	1: 'ばぼちぇ',
-	2: 'おまみ',
+	1: '👧🏻',
+	2: '👦🏻',
 }
 
 /**
